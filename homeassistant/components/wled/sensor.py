@@ -30,6 +30,8 @@ from .const import DOMAIN
 from .coordinator import WLEDDataUpdateCoordinator
 from .models import WLEDEntity
 
+MDI_WIFI = "mdi:wifi"
+
 
 @dataclass
 class WLEDSensorEntityDescriptionMixin:
@@ -94,7 +96,7 @@ SENSORS: tuple[WLEDSensorEntityDescription, ...] = (
     WLEDSensorEntityDescription(
         key="wifi_signal",
         name="Wi-Fi signal",
-        icon="mdi:wifi",
+        icon=MDI_WIFI,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -114,7 +116,7 @@ SENSORS: tuple[WLEDSensorEntityDescription, ...] = (
     WLEDSensorEntityDescription(
         key="wifi_channel",
         name="Wi-Fi channel",
-        icon="mdi:wifi",
+        icon=MDI_WIFI,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
         value_fn=lambda device: device.info.wifi.channel if device.info.wifi else None,
@@ -122,7 +124,7 @@ SENSORS: tuple[WLEDSensorEntityDescription, ...] = (
     WLEDSensorEntityDescription(
         key="wifi_bssid",
         name="Wi-Fi BSSID",
-        icon="mdi:wifi",
+        icon=MDI_WIFI,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
         value_fn=lambda device: device.info.wifi.bssid if device.info.wifi else None,

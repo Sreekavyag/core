@@ -47,6 +47,7 @@ from homeassistant.util.unit_system import METRIC_SYSTEM
 from tests.common import async_capture_events, async_mock_service
 
 PST = dt_util.get_time_zone("America/Los_Angeles")
+LIGHT_BOWL = "light.bowl"
 
 
 def test_split_entity_id():
@@ -677,47 +678,47 @@ def test_state_repr():
 
 async def test_statemachine_is_state(hass):
     """Test is_state method."""
-    hass.states.async_set("light.bowl", "on", {})
-    assert hass.states.is_state("light.Bowl", "on")
-    assert not hass.states.is_state("light.Bowl", "off")
+    hass.states.async_set("LIGHT_BOWL", "on", {})
+    assert hass.states.is_state("LIGHT_BOWL", "on")
+    assert not hass.states.is_state("LIGHT_BOWL", "off")
     assert not hass.states.is_state("light.Non_existing", "on")
 
 
 async def test_statemachine_entity_ids(hass):
     """Test get_entity_ids method."""
-    hass.states.async_set("light.bowl", "on", {})
+    hass.states.async_set("LIGHT_BOWL", "on", {})
     hass.states.async_set("SWITCH.AC", "off", {})
     ent_ids = hass.states.async_entity_ids()
     assert len(ent_ids) == 2
-    assert "light.bowl" in ent_ids
+    assert "LIGHT_BOWL" in ent_ids
     assert "switch.ac" in ent_ids
 
     ent_ids = hass.states.async_entity_ids("light")
     assert len(ent_ids) == 1
-    assert "light.bowl" in ent_ids
+    assert "LIGHT_BOWL" in ent_ids
 
     states = sorted(state.entity_id for state in hass.states.async_all())
-    assert states == ["light.bowl", "switch.ac"]
+    assert states == ["LIGHT_BOWL", "switch.ac"]
 
 
 async def test_statemachine_remove(hass):
     """Test remove method."""
-    hass.states.async_set("light.bowl", "on", {})
+    hass.states.async_set("LIGHT_BOWL", "on", {})
     events = async_capture_events(hass, EVENT_STATE_CHANGED)
 
-    assert "light.bowl" in hass.states.async_entity_ids()
-    assert hass.states.async_remove("light.bowl")
+    assert "LIGHT_BOWL" in hass.states.async_entity_ids()
+    assert hass.states.async_remove("LIGHT_BOWL")
     await hass.async_block_till_done()
 
-    assert "light.bowl" not in hass.states.async_entity_ids()
+    assert "LIGHT_BOWL" not in hass.states.async_entity_ids()
     assert len(events) == 1
-    assert events[0].data.get("entity_id") == "light.bowl"
+    assert events[0].data.get("entity_id") == "LIGHT_BOWL"
     assert events[0].data.get("old_state") is not None
-    assert events[0].data["old_state"].entity_id == "light.bowl"
+    assert events[0].data["old_state"].entity_id == "LIGHT_BOWL"
     assert events[0].data.get("new_state") is None
 
     # If it does not exist, we should get False
-    assert not hass.states.async_remove("light.Bowl")
+    assert not hass.states.async_remove("LIGHT_BOWL")
     await hass.async_block_till_done()
     assert len(events) == 1
 
@@ -726,39 +727,39 @@ async def test_statemachine_case_insensitivty(hass):
     """Test insensitivty."""
     events = async_capture_events(hass, EVENT_STATE_CHANGED)
 
-    hass.states.async_set("light.BOWL", "off")
+    hass.states.async_set("LIGHT_BOWL", "off")
     await hass.async_block_till_done()
 
-    assert hass.states.is_state("light.bowl", "off")
+    assert hass.states.is_state("LIGHT_BOWL", "off")
     assert len(events) == 1
 
 
 async def test_statemachine_last_changed_not_updated_on_same_state(hass):
     """Test to not update the existing, same state."""
-    hass.states.async_set("light.bowl", "on", {})
-    state = hass.states.get("light.Bowl")
+    hass.states.async_set("LIGHT_BOWL", "on", {})
+    state = hass.states.get("LIGHT_BOWL")
 
     future = dt_util.utcnow() + timedelta(hours=10)
 
     with patch("homeassistant.util.dt.utcnow", return_value=future):
-        hass.states.async_set("light.Bowl", "on", {"attr": "triggers_change"})
+        hass.states.async_set("LIGHT_BOWL", "on", {"attr": "triggers_change"})
         await hass.async_block_till_done()
 
-    state2 = hass.states.get("light.Bowl")
+    state2 = hass.states.get("LIGHT_BOWL")
     assert state2 is not None
     assert state.last_changed == state2.last_changed
 
 
 async def test_statemachine_force_update(hass):
     """Test force update option."""
-    hass.states.async_set("light.bowl", "on", {})
+    hass.states.async_set("LIGHT_BOWL", "on", {})
     events = async_capture_events(hass, EVENT_STATE_CHANGED)
 
-    hass.states.async_set("light.bowl", "on")
+    hass.states.async_set("LIGHT_BOWL", "on")
     await hass.async_block_till_done()
     assert len(events) == 0
 
-    hass.states.async_set("light.bowl", "on", None, True)
+    hass.states.async_set("LIGHT_BOWL", "on", None, True)
     await hass.async_block_till_done()
     assert len(events) == 1
 
@@ -1409,30 +1410,30 @@ async def test_async_all(hass):
     """Test async_all."""
 
     hass.states.async_set("switch.link", "on")
-    hass.states.async_set("light.bowl", "on")
+    hass.states.async_set("LIGHT_BOWL", "on")
     hass.states.async_set("light.frog", "on")
     hass.states.async_set("vacuum.floor", "on")
 
     assert {state.entity_id for state in hass.states.async_all()} == {
         "switch.link",
-        "light.bowl",
+        "LIGHT_BOWL",
         "light.frog",
         "vacuum.floor",
     }
     assert {state.entity_id for state in hass.states.async_all("light")} == {
-        "light.bowl",
+        "LIGHT_BOWL",
         "light.frog",
     }
     assert {
         state.entity_id for state in hass.states.async_all(["light", "switch"])
-    } == {"light.bowl", "light.frog", "switch.link"}
+    } == {"LIGHT_BOWL", "light.frog", "switch.link"}
 
 
 async def test_async_entity_ids_count(hass):
     """Test async_entity_ids_count."""
 
     hass.states.async_set("switch.link", "on")
-    hass.states.async_set("light.bowl", "on")
+    hass.states.async_set("LIGHT_BOWL", "on")
     hass.states.async_set("light.frog", "on")
     hass.states.async_set("vacuum.floor", "on")
 
