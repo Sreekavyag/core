@@ -102,7 +102,6 @@ def core_rs(hass_storage):
                 }
             ],
         }
-        return
 
     return _storage
 

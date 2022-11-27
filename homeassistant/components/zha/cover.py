@@ -290,7 +290,6 @@ class Shade(ZhaEntity, CoverEntity):
         res = await self._level_channel.stop()
         if isinstance(res, Exception) or res[1] != Status.SUCCESS:
             self.debug("couldn't stop cover: %s", res)
-            return
 
 
 @MULTI_MATCH(
